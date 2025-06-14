@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft - Zombie Shooter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minecraft Zombie Fighter</title>
     <style>
         body {
             margin: 0;
@@ -11,6 +11,7 @@
             background-color: #000;
             overflow: hidden;
             font-family: 'Arial', sans-serif;
+            touch-action: manipulation;
         }
         
         #game-container {
@@ -22,6 +23,8 @@
         #game-canvas {
             display: block;
             background-color: #111;
+            width: 100%;
+            height: 100%;
         }
         
         #ui-overlay {
@@ -35,16 +38,17 @@
         
         #health-container {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 200px;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 10px;
+            top: 10px;
+            left: 10px;
+            width: 150px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 8px;
             border-radius: 5px;
+            border: 2px solid #555;
         }
         
         #health-bar {
-            height: 20px;
+            height: 15px;
             background-color: #e74c3c;
             border-radius: 3px;
             transition: width 0.3s;
@@ -52,30 +56,35 @@
         
         #health-text {
             color: white;
-            margin-top: 5px;
-            font-size: 14px;
+            margin-top: 3px;
+            font-size: 12px;
+            font-weight: bold;
         }
         
         #ammo-container {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 10px;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 8px;
             border-radius: 5px;
             color: white;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #555;
         }
         
         #score-container {
             position: absolute;
-            top: 70px;
-            left: 20px;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 10px;
+            top: 50px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 8px;
             border-radius: 5px;
             color: white;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #555;
         }
         
         #level-container {
@@ -83,12 +92,13 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 8px 16px;
             border-radius: 5px;
             color: #f1c40f;
-            font-size: 18px;
+            font-size: 16px;
             text-align: center;
+            border: 2px solid #755;
         }
         
         #level-text {
@@ -96,8 +106,8 @@
         }
         
         #wave-text {
-            font-size: 14px;
-            margin-top: 5px;
+            font-size: 12px;
+            margin-top: 3px;
         }
         
         #menu-screen {
@@ -106,7 +116,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -114,27 +124,13 @@
             z-index: 100;
         }
         
-        #game-over-screen {
+        #game-over-screen, #level-complete-screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        
-        #level-complete-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.9);
             display: none;
             flex-direction: column;
             justify-content: center;
@@ -143,31 +139,36 @@
         }
         
         .screen-title {
-            font-size: 72px;
+            font-size: 42px;
             color: #e74c3c;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             text-shadow: 3px 3px 6px #000;
+            text-align: center;
         }
         
         .screen-subtitle {
-            font-size: 24px;
+            font-size: 16px;
             color: #fff;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             text-align: center;
-            max-width: 600px;
+            max-width: 80%;
+            line-height: 1.4;
         }
         
         .screen-button {
             background-color: #e74c3c;
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 20px;
-            margin: 10px;
+            padding: 12px 24px;
+            font-size: 18px;
+            margin: 8px;
             cursor: pointer;
             border-radius: 5px;
             transition: all 0.3s;
             pointer-events: auto;
+            font-weight: bold;
+            border: 2px solid #c0392b;
+            min-width: 160px;
         }
         
         .screen-button:hover {
@@ -175,12 +176,87 @@
             transform: scale(1.05);
         }
         
-        #controls-info {
-            position: absolute;
+        /* Mobile controls */
+        #mobile-controls {
+            position: fixed;
             bottom: 20px;
             left: 20px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
+            display: none;
+            gap: 10px;
+            z-index: 50;
+        }
+        
+        .mobile-joystick {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+        }
+        
+        .mobile-btn {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        #shoot-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 70px;
+            height: 70px;
+            background-color: rgba(231, 76, 60, 0.5);
+            display: none;
+            font-size: 30px;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        
+        /* Mobile specific styles */
+        @media (max-width: 768px), (orientation: portrait) {
+            .screen-title {
+                font-size: 32px;
+            }
+            
+            .screen-subtitle {
+                font-size: 14px;
+            }
+            
+            .screen-button {
+                padding: 10px 20px;
+                font-size: 16px;
+                min-width: 140px;
+            }
+            
+            #mobile-controls, #shoot-btn {
+                display: flex;
+            }
+            
+            #controls-info {
+                display: none;
+            }
+            
+            #health-container, #ammo-container, #score-container {
+                top: 5px;
+                padding: 5px;
+                width: 120px;
+            }
+            
+            #health-text, #ammo-container, #score-container {
+                font-size: 12px;
+            }
+            
+            #health-bar {
+                height: 12px;
+            }
         }
     </style>
 </head>
@@ -206,15 +282,11 @@
                 <div id="level-text">LEVEL 1</div>
                 <div id="wave-text">Wave 1 of 5</div>
             </div>
-            
-            <div id="controls-info">
-                WASD to move | Mouse to aim | Left click to shoot
-            </div>
         </div>
         
         <div id="menu-screen">
-            <h1 class="screen-title">Minecraft Zombie Fighter </h1>
-            <p class="screen-subtitle">Survive the zombie apocalypse across 20 intense levels. Fight through waves of undead and upgrade your weapons to become the ultimate survivor.</p>
+            <h1 class="screen-title">MINECRAFT ZOMBIE FIGHTER</h1>
+            <p class="screen-subtitle">Survive the zombie apocalypse across 20 intense levels. Fight through waves of undead mobs using your diamond bullets!</p>
             <button class="screen-button" id="start-button">START GAME</button>
             <button class="screen-button" id="how-to-play-button">HOW TO PLAY</button>
         </div>
@@ -232,65 +304,75 @@
             <button class="screen-button" id="next-level-button">NEXT LEVEL</button>
             <button class="screen-button" id="level-menu-button">MAIN MENU</button>
         </div>
+        
+        <!-- Mobile controls -->
+        <div id="mobile-controls">
+            <div class="mobile-joystick">
+                <div style="grid-column: 2; grid-row: 1;">
+                    <div class="mobile-btn" id="move-up">↑</div>
+                </div>
+                <div style="grid-column: 1; grid-row: 2;">
+                    <div class="mobile-btn" id="move-left">←</div>
+                </div>
+                <div style="grid-column: 2; grid-row: 2;"></div>
+                <div style="grid-column: 3; grid-row: 2;">
+                    <div class="mobile-btn" id="move-right">→</div>
+                </div>
+                <div style="grid-column: 2; grid-row: 3;">
+                    <div class="mobile-btn" id="move-down">↓</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mobile-btn" id="shoot-btn">💎</div>
     </div>
 
-    <!-- Hidden images for preloading -->
+    <!-- Hidden assets for preloading -->
     <div style="display: none;">
-        <!-- Player and weapons -->
-          <img id="player-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/steave.jpg">
-        
-        <!-- Zombies -->
+        <img id="player-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/steave.jpg">
         <img id="zombie1-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/zombie.jpg">
         <img id="zombie2-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/enderman.jpg">
         <img id="zombie3-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/creeper.jpg">
-        
-        <!-- Bullets -->
         <img id="bullet-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/diamondss.jpg">
-        
-        <!-- Backgrounds -->
-        <img id="bg1-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/b6.jpg">
-        <img id="bg2-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/b7.jpg">
+        <img id="bg1-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/b4.jpg">
+        <img id="bg2-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/b2.jpg">
         <img id="bg3-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/b3.jpg">
         <img id="bg4-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/b4.jpg">
-        <img id="bg5-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/b7.jpg">
+        <img id="bg5-img" src="https://raw.githubusercontent.com/bengeltigerWD/game/main/b5.jpg">
     </div>
 
-   
     <!-- Audio elements -->
-    <audio id="shoot-sound" src="https://github.com/bengeltigerWD/game/raw/refs/heads/main/laser-gun-81720.mp3
-"></audio>
-    <audio id="zombie-hit-sound" src="https://github.com/bengeltigerWD/game/raw/refs/heads/main/game-character-140506.mp3"></audio>
-    <audio id="player-hit-sound" src="https://github.com/bengeltigerWD/game/raw/refs/heads/main/cool-hip-hop-loop-275527.mp3"></audio>
-    <audio id="level-complete-sound" src="https://github.com/bengeltigerWD/game/raw/refs/heads/main/level-up-47165.mp3"></audio>
-    <audio id="game-over-sound" src="https://github.com/bengeltigerWD/game/raw/refs/heads/main/negative_beeps-6008.mp3"></audio>
-    <audio id="background-music"src="https://github.com/bengeltigerWD/game/raw/refs/heads/main/game-intro-345507.mp3"></audio>
+    <audio id="shoot-sound" src="https://github.com/bengeltigerWD/game/raw/main/laser-gun-81720.mp3"></audio>
+    <audio id="zombie-hit-sound" src="https://github.com/bengeltigerWD/game/raw/main/game-character-140506.mp3"></audio>
+    <audio id="player-hit-sound" src="https://github.com/bengeltigerWD/game/raw/main/cool-hip-hop-loop-275527.mp3"></audio>
+    <audio id="level-complete-sound" src="https://github.com/bengeltigerWD/game/raw/main/level-up-47165.mp3"></audio>
+    <audio id="game-over-sound" src="https://github.com/bengeltigerWD/game/raw/main/negative_beeps-6008.mp3"></audio>
+    <audio id="background-music" loop src="https://github.com/bengeltigerWD/game/raw/main/sfx-short-chop-transient-358667.mp3"></audio>
 
     <script>
         // Game constants
-       const LEVELS = [
-    { waves: 5, zombiesPerWave: 5, zombieSpeed: 1.5, zombieHealth: 1 },
-    { waves: 5, zombiesPerWave: 8, zombieSpeed: 1.7, zombieHealth: 1 },
-    { waves: 6, zombiesPerWave: 10, zombieSpeed: 1.8, zombieHealth: 1 },
-    { waves: 6, zombiesPerWave: 12, zombieSpeed: 2.0, zombieHealth: 2 },
-    { waves: 7, zombiesPerWave: 12, zombieSpeed: 2.2, zombieHealth: 2 },
-    { waves: 7, zombiesPerWave: 15, zombieSpeed: 2.3, zombieHealth: 2 },
-    { waves: 8, zombiesPerWave: 15, zombieSpeed: 2.5, zombieHealth: 3 },
-    { waves: 8, zombiesPerWave: 18, zombieSpeed: 2.6, zombieHealth: 3 },
-    { waves: 9, zombiesPerWave: 18, zombieSpeed: 2.8, zombieHealth: 3 },
-    { waves: 10, zombiesPerWave: 20, zombieSpeed: 3.0, zombieHealth: 4 },
-    { waves: 10, zombiesPerWave: 22, zombieSpeed: 3.2, zombieHealth: 4, special: "Faster zombies" },
-    { waves: 10, zombiesPerWave: 25, zombieSpeed: 3.3, zombieHealth: 5, special: "Tougher zombies" },
-    { waves: 11, zombiesPerWave: 25, zombieSpeed: 3.5, zombieHealth: 5, special: "More waves" },
-    { waves: 11, zombiesPerWave: 28, zombieSpeed: 3.5, zombieHealth: 6, special: "Zombie swarms" },
-    { waves: 12, zombiesPerWave: 30, zombieSpeed: 3.6, zombieHealth: 6, special: "Apocalypse begins" },
-    { waves: 12, zombiesPerWave: 32, zombieSpeed: 3.7, zombieHealth: 7, special: "Endless hordes" },
-    { waves: 13, zombiesPerWave: 35, zombieSpeed: 3.8, zombieHealth: 7, special: "Nightmare mode" },
-    { waves: 13, zombiesPerWave: 38, zombieSpeed: 4.0, zombieHealth: 8, special: "Final onslaught" },
-    { waves: 14, zombiesPerWave: 40, zombieSpeed: 4.2, zombieHealth: 8, special: "Hell on earth" },
-    { waves: 15, zombiesPerWave: 50, zombieSpeed: 4.5, zombieHealth: 10, special: "BOSS WAVE" }
-];
-
-        
+        const LEVELS = [
+            { waves: 5, zombiesPerWave: 5, zombieSpeed: 1.5, zombieHealth: 1 },
+            { waves: 5, zombiesPerWave: 8, zombieSpeed: 1.7, zombieHealth: 1 },
+            { waves: 6, zombiesPerWave: 10, zombieSpeed: 1.8, zombieHealth: 1 },
+            { waves: 6, zombiesPerWave: 12, zombieSpeed: 2.0, zombieHealth: 2 },
+            { waves: 7, zombiesPerWave: 12, zombieSpeed: 2.2, zombieHealth: 2 },
+            { waves: 7, zombiesPerWave: 15, zombieSpeed: 2.3, zombieHealth: 2 },
+            { waves: 8, zombiesPerWave: 15, zombieSpeed: 2.5, zombieHealth: 3 },
+            { waves: 8, zombiesPerWave: 18, zombieSpeed: 2.6, zombieHealth: 3 },
+            { waves: 9, zombiesPerWave: 18, zombieSpeed: 2.8, zombieHealth: 3 },
+            { waves: 10, zombiesPerWave: 20, zombieSpeed: 3.0, zombieHealth: 4 },
+            { waves: 10, zombiesPerWave: 22, zombieSpeed: 3.2, zombieHealth: 4, special: "Faster zombies" },
+            { waves: 10, zombiesPerWave: 25, zombieSpeed: 3.3, zombieHealth: 5, special: "Tougher zombies" },
+            { waves: 11, zombiesPerWave: 25, zombieSpeed: 3.5, zombieHealth: 5, special: "More waves" },
+            { waves: 11, zombiesPerWave: 28, zombieSpeed: 3.5, zombieHealth: 6, special: "Zombie swarms" },
+            { waves: 12, zombiesPerWave: 30, zombieSpeed: 3.6, zombieHealth: 6, special: "Apocalypse begins" },
+            { waves: 12, zombiesPerWave: 32, zombieSpeed: 3.7, zombieHealth: 7, special: "Endless hordes" },
+            { waves: 13, zombiesPerWave: 35, zombieSpeed: 3.8, zombieHealth: 7, special: "Nightmare mode" },
+            { waves: 13, zombiesPerWave: 38, zombieSpeed: 4.0, zombieHealth: 8, special: "Final onslaught" },
+            { waves: 14, zombiesPerWave: 40, zombieSpeed: 4.2, zombieHealth: 8, special: "Hell on earth" },
+            { waves: 15, zombiesPerWave: 50, zombieSpeed: 4.5, zombieHealth: 10, special: "BOSS WAVE" }
+        ];
 
         // Game variables
         const canvas = document.getElementById('game-canvas');
@@ -333,6 +415,7 @@
         let zombiesKilled = 0;
         let score = 0;
         let gameTime = 0;
+        let mobileShootInterval;
         
         // Player object
         const player = {
@@ -347,10 +430,9 @@
             maxAmmo: 120,
             reloading: false,
             lastShot: 0,
-            shootDelay: 200, // ms between shots
+            shootDelay: 200,
             damage: 10,
-            color: '#3498db',
-            direction: { x: 0, y: 1 }, // Facing down initially
+            direction: { x: 0, y: 1 },
             img: document.getElementById('player-img')
         };
         
@@ -370,66 +452,89 @@
         ];
         let currentBackground = 0;
         
-        // Set canvas size
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            player.x = canvas.width / 2;
-            player.y = canvas.height / 2;
-        }
+        // Mobile control variables
+        const mobileControls = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
+        };
         
-        // Initialize game
+        // Initialize game with mobile detection
         function initGame() {
-            // Reset game state
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                player.speed = 4;
+                player.shootDelay = 300;
+                setupMobileControls();
+            }
+            
             currentLevel = 0;
             score = 0;
-            
-            // Start first level
             startLevel();
+        }
+        
+        // Setup mobile touch controls
+        function setupMobileControls() {
+            document.getElementById('move-up').addEventListener('touchstart', () => mobileControls.up = true);
+            document.getElementById('move-up').addEventListener('touchend', () => mobileControls.up = false);
+            
+            document.getElementById('move-down').addEventListener('touchstart', () => mobileControls.down = true);
+            document.getElementById('move-down').addEventListener('touchend', () => mobileControls.down = false);
+            
+            document.getElementById('move-left').addEventListener('touchstart', () => mobileControls.left = true);
+            document.getElementById('move-left').addEventListener('touchend', () => mobileControls.left = false);
+            
+            document.getElementById('move-right').addEventListener('touchstart', () => mobileControls.right = true);
+            document.getElementById('move-right').addEventListener('touchend', () => mobileControls.right = false);
+            
+            const shootBtn = document.getElementById('shoot-btn');
+            shootBtn.addEventListener('touchstart', () => {
+                if (gameRunning) {
+                    shoot();
+                    mobileShootInterval = setInterval(shoot, player.shootDelay);
+                }
+            });
+            
+            shootBtn.addEventListener('touchend', () => {
+                clearInterval(mobileShootInterval);
+            });
         }
         
         // Start a new level
         function startLevel() {
-            // Reset level state
             currentWave = 0;
             zombiesAlive = 0;
             zombiesKilled = 0;
             gameTime = 0;
             
-            // Reset player stats (with some progression)
             player.health = player.maxHealth;
             player.ammo = player.maxAmmo / 2;
             player.reloading = false;
             
-            // Clear all game objects
             bullets = [];
             zombies = [];
             powerups = [];
             explosions = [];
             
-            // Update UI
             updateHealthUI();
             updateAmmoUI();
             updateScoreUI();
             updateLevelUI();
             
-            // Select a random background
             currentBackground = Math.floor(Math.random() * backgroundImages.length);
             
-            // Hide menus and show game
             menuScreen.style.display = 'none';
             gameOverScreen.style.display = 'none';
             levelCompleteScreen.style.display = 'none';
             gameRunning = true;
             
-            // Start first wave
             startNextWave();
             
-            // Play background music
             backgroundMusic.volume = 0.3;
             backgroundMusic.play().catch(e => console.log("Audio play failed:", e));
             
-            // Start game loop
             requestAnimationFrame(gameLoop);
         }
         
@@ -437,22 +542,18 @@
         function startNextWave() {
             currentWave++;
             
-            // Check if level is complete
             if (currentWave > LEVELS[currentLevel].waves) {
                 completeLevel();
                 return;
             }
             
-            // Update wave UI
             updateLevelUI();
             
-            // Show wave indicator
             levelContainer.style.display = 'block';
             setTimeout(() => {
                 levelContainer.style.display = 'none';
             }, 2000);
             
-            // Spawn zombies for this wave
             const zombiesToSpawn = LEVELS[currentLevel].zombiesPerWave + Math.floor(currentWave / 2);
             zombiesAlive += zombiesToSpawn;
             
@@ -461,28 +562,16 @@
             }
         }
         
-        // Spawn a new zombie at a random edge of the screen
+        // Spawn a new zombie
         function spawnZombie() {
-            const edge = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+            const edge = Math.floor(Math.random() * 4);
             let x, y;
             
             switch (edge) {
-                case 0: // top
-                    x = Math.random() * canvas.width;
-                    y = -50;
-                    break;
-                case 1: // right
-                    x = canvas.width + 50;
-                    y = Math.random() * canvas.height;
-                    break;
-                case 2: // bottom
-                    x = Math.random() * canvas.width;
-                    y = canvas.height + 50;
-                    break;
-                case 3: // left
-                    x = -50;
-                    y = Math.random() * canvas.height;
-                    break;
+                case 0: x = Math.random() * canvas.width; y = -50; break;
+                case 1: x = canvas.width + 50; y = Math.random() * canvas.height; break;
+                case 2: x = Math.random() * canvas.width; y = canvas.height + 50; break;
+                case 3: x = -50; y = Math.random() * canvas.height; break;
             }
             
             const zombieTypes = ['zombie1-img', 'zombie2-img', 'zombie3-img'];
@@ -506,7 +595,6 @@
         function completeLevel() {
             gameRunning = false;
             
-            // Calculate level score bonus
             const timeBonus = Math.max(0, 5000 - Math.floor(gameTime / 1000) * 100);
             const healthBonus = Math.floor(player.health / player.maxHealth * 2000);
             const waveBonus = currentWave * 500;
@@ -515,14 +603,10 @@
             score += totalBonus;
             updateScoreUI();
             
-            // Show level complete screen
             levelCompleteText.textContent = `You survived Level ${currentLevel + 1} with ${score} points. ${totalBonus > 0 ? `+${totalBonus} bonus points!` : ''}`;
             levelCompleteScreen.style.display = 'flex';
             
-            // Play level complete sound
             levelCompleteSound.play().catch(e => console.log("Audio play failed:", e));
-            
-            // Stop background music
             backgroundMusic.pause();
         }
         
@@ -530,20 +614,17 @@
         function nextLevel() {
             currentLevel++;
             
-            // Check if game is complete
             if (currentLevel >= LEVELS.length) {
                 gameComplete();
                 return;
             }
             
-            // Start the next level
             startLevel();
         }
         
-        // Game is fully complete (all levels finished)
+        // Game is fully complete
         function gameComplete() {
-            // For now, just show game over with special message
-            gameOverText.textContent = `CONGRATULATIONS! You completed all 10 levels with ${score} points!`;
+            gameOverText.textContent = `CONGRATULATIONS! You completed all ${LEVELS.length} levels with ${score} points!`;
             gameOverScreen.style.display = 'flex';
         }
         
@@ -551,14 +632,10 @@
         function gameOver() {
             gameRunning = false;
             
-            // Show game over screen
             gameOverText.textContent = `You survived until Level ${currentLevel + 1} with a score of ${score} points.`;
             gameOverScreen.style.display = 'flex';
             
-            // Play game over sound
             gameOverSound.play().catch(e => console.log("Audio play failed:", e));
-            
-            // Stop background music
             backgroundMusic.pause();
         }
         
@@ -568,7 +645,6 @@
             healthBar.style.width = `${healthPercent}%`;
             healthText.textContent = `HEALTH: ${Math.floor(healthPercent)}%`;
             
-            // Change color based on health
             if (healthPercent > 60) {
                 healthBar.style.backgroundColor = '#2ecc71';
             } else if (healthPercent > 30) {
@@ -582,7 +658,6 @@
         function updateAmmoUI() {
             ammoText.textContent = `${player.ammo}/${player.maxAmmo}`;
             
-            // Change color when low on ammo
             if (player.ammo < 10) {
                 ammoText.style.color = '#e74c3c';
             } else {
@@ -605,63 +680,44 @@
         function gameLoop(timestamp) {
             if (!gameRunning) return;
             
-            // Calculate delta time
             const deltaTime = timestamp - gameTime;
             gameTime = timestamp;
             
-            // Update game state
             update(deltaTime);
-            
-            // Render everything
             draw();
             
-            // Continue game loop
             requestAnimationFrame(gameLoop);
         }
         
         // Update game state
         function update(deltaTime) {
-            // Update player position based on input
             updatePlayerPosition();
-            
-            // Update bullets
             updateBullets();
-            
-            // Update zombies
             updateZombies();
-            
-            // Update explosions
             updateExplosions();
-            
-            // Check for collisions
             checkCollisions();
             
-            // Check if wave is complete
             if (zombiesAlive <= 0 && zombies.length <= 0) {
                 startNextWave();
             }
         }
         
-        // Update player position based on input
+        // Update player position
         function updatePlayerPosition() {
-            // Move player
-            if (keys.KeyW || keys.ArrowUp) player.y -= player.speed;
-            if (keys.KeyS || keys.ArrowDown) player.y += player.speed;
-            if (keys.KeyA || keys.ArrowLeft) player.x -= player.speed;
-            if (keys.KeyD || keys.ArrowRight) player.x += player.speed;
+            if (keys.KeyW || keys.ArrowUp || mobileControls.up) player.y -= player.speed;
+            if (keys.KeyS || keys.ArrowDown || mobileControls.down) player.y += player.speed;
+            if (keys.KeyA || keys.ArrowLeft || mobileControls.left) player.x -= player.speed;
+            if (keys.KeyD || keys.ArrowRight || mobileControls.right) player.x += player.speed;
             
-            // Keep player in bounds
             player.x = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, player.x));
             player.y = Math.max(player.height / 2, Math.min(canvas.height - player.height / 2, player.y));
             
-            // Update player direction based on mouse position
             if (mouse.x !== null && mouse.y !== null) {
                 player.direction = {
                     x: mouse.x - player.x,
                     y: mouse.y - player.y
                 };
                 
-                // Normalize direction
                 const length = Math.sqrt(player.direction.x * player.direction.x + player.direction.y * player.direction.y);
                 if (length > 0) {
                     player.direction.x /= length;
@@ -674,12 +730,9 @@
         function updateBullets() {
             for (let i = bullets.length - 1; i >= 0; i--) {
                 const bullet = bullets[i];
-                
-                // Move bullet
                 bullet.x += bullet.dx * bullet.speed;
                 bullet.y += bullet.dy * bullet.speed;
                 
-                // Remove bullets that are off screen
                 if (bullet.x < 0 || bullet.x > canvas.width || 
                     bullet.y < 0 || bullet.y > canvas.height) {
                     bullets.splice(i, 1);
@@ -691,8 +744,6 @@
         function updateZombies() {
             for (let i = zombies.length - 1; i >= 0; i--) {
                 const zombie = zombies[i];
-                
-                // Move zombie toward player
                 const dx = player.x - zombie.x;
                 const dy = player.y - zombie.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
@@ -702,9 +753,8 @@
                     zombie.y += (dy / distance) * zombie.speed;
                 }
                 
-                // Check if zombie is attacking player
                 if (distance < 30) {
-                    player.health -= zombie.damage * 0.1; // Reduced damage for continuous contact
+                    player.health -= zombie.damage * 0.1;
                     updateHealthUI();
                     
                     if (player.health <= 0) {
@@ -729,23 +779,18 @@
         
         // Check for collisions
         function checkCollisions() {
-            // Bullet-zombie collisions
             for (let i = bullets.length - 1; i >= 0; i--) {
                 const bullet = bullets[i];
                 
                 for (let j = zombies.length - 1; j >= 0; j--) {
                     const zombie = zombies[j];
-                    
-                    // Simple distance-based collision detection
                     const dx = bullet.x - zombie.x;
                     const dy = bullet.y - zombie.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance < 20) { // Collision radius
-                        // Damage zombie
+                    if (distance < 20) {
                         zombie.health -= bullet.damage;
                         
-                        // Create explosion effect
                         explosions.push({
                             x: zombie.x,
                             y: zombie.y,
@@ -753,24 +798,19 @@
                             time: 10
                         });
                         
-                        // Play hit sound
                         zombieHitSound.currentTime = 0;
                         zombieHitSound.play().catch(e => console.log("Audio play failed:", e));
                         
-                        // Remove bullet
                         bullets.splice(i, 1);
                         
-                        // Check if zombie is dead
                         if (zombie.health <= 0) {
                             zombies.splice(j, 1);
                             zombiesAlive--;
                             zombiesKilled++;
                             
-                            // Add score
                             score += 100;
                             updateScoreUI();
                             
-                            // Chance to drop ammo
                             if (Math.random() < 0.2) {
                                 powerups.push({
                                     x: zombie.x,
@@ -782,20 +822,18 @@
                             }
                         }
                         
-                        break; // Bullet can only hit one zombie
+                        break;
                     }
                 }
             }
             
-            // Player-powerup collisions
             for (let i = powerups.length - 1; i >= 0; i--) {
                 const powerup = powerups[i];
-                
                 const dx = player.x - powerup.x;
                 const dy = player.y - powerup.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance < 30) { // Collision radius
+                if (distance < 30) {
                     if (powerup.type === 'ammo') {
                         player.ammo = Math.min(player.maxAmmo, player.ammo + powerup.amount);
                         updateAmmoUI();
@@ -808,93 +846,53 @@
         
         // Draw everything
         function draw() {
-            // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw background
             if (backgroundImages[currentBackground].complete) {
                 ctx.drawImage(backgroundImages[currentBackground], 0, 0, canvas.width, canvas.height);
             }
             
-            // Draw powerups
             for (const powerup of powerups) {
                 if (powerup.img.complete) {
                     ctx.save();
                     ctx.globalAlpha = 0.8;
-                    ctx.drawImage(
-                        powerup.img,
-                        powerup.x - 15,
-                        powerup.y - 15,
-                        30,
-                        30
-                    );
+                    ctx.drawImage(powerup.img, powerup.x - 15, powerup.y - 15, 30, 30);
                     ctx.restore();
                 }
             }
             
-            // Draw zombies
             for (const zombie of zombies) {
                 if (zombie.img.complete) {
-                    // Calculate angle to face player
-                    const angle = Math.atan2(
-                        player.y - zombie.y,
-                        player.x - zombie.x
-                    );
+                    const angle = Math.atan2(player.y - zombie.y, player.x - zombie.x);
                     
                     ctx.save();
                     ctx.translate(zombie.x, zombie.y);
                     ctx.rotate(angle);
                     
-                    // Draw zombie image
-                    ctx.drawImage(
-                        zombie.img,
-                        -zombie.width / 2,
-                        -zombie.height / 2,
-                        zombie.width,
-                        zombie.height
-                    );
+                    ctx.drawImage(zombie.img, -zombie.width / 2, -zombie.height / 2, zombie.width, zombie.height);
                     
-                    // Draw health bar
                     if (zombie.health < zombie.maxHealth) {
                         const healthWidth = 30;
                         const healthHeight = 5;
                         const healthPercent = zombie.health / zombie.maxHealth;
                         
                         ctx.fillStyle = '#333';
-                        ctx.fillRect(
-                            -healthWidth / 2,
-                            -zombie.height / 2 - 10,
-                            healthWidth,
-                            healthHeight
-                        );
+                        ctx.fillRect(-healthWidth / 2, -zombie.height / 2 - 10, healthWidth, healthHeight);
                         
                         ctx.fillStyle = healthPercent > 0.5 ? '#2ecc71' : healthPercent > 0.2 ? '#f39c12' : '#e74c3c';
-                        ctx.fillRect(
-                            -healthWidth / 2,
-                            -zombie.height / 2 - 10,
-                            healthWidth * healthPercent,
-                            healthHeight
-                        );
+                        ctx.fillRect(-healthWidth / 2, -zombie.height / 2 - 10, healthWidth * healthPercent, healthHeight);
                     }
                     
                     ctx.restore();
                 }
             }
             
-            // Draw bullets
             for (const bullet of bullets) {
                 if (bullet.img.complete) {
-                    ctx.drawImage(
-                        bullet.img,
-                        bullet.x - bullet.radius,
-                        bullet.y - bullet.radius,
-                        bullet.radius * 2,
-                        bullet.radius * 2
-                    );
+                    ctx.drawImage(bullet.img, bullet.x - bullet.radius, bullet.y - bullet.radius, bullet.radius * 2, bullet.radius * 2);
                 }
             }
             
-            // Draw explosions
             for (const explosion of explosions) {
                 const size = explosion.size * (explosion.time / 10);
                 ctx.fillStyle = `rgba(255, ${Math.floor(100 + explosion.time * 15)}, 0, ${explosion.time / 10})`;
@@ -903,24 +901,14 @@
                 ctx.fill();
             }
             
-            // Draw player
             if (player.img.complete) {
-                // Calculate angle based on direction
                 const angle = Math.atan2(player.direction.y, player.direction.x);
                 
                 ctx.save();
                 ctx.translate(player.x, player.y);
                 ctx.rotate(angle);
                 
-                // Draw player image
-                ctx.drawImage(
-                    player.img,
-                    -player.width / 2,
-                    -player.height / 2,
-                    player.width,
-                    player.height
-                );
-                
+                ctx.drawImage(player.img, -player.width / 2, -player.height / 2, player.width, player.height);
                 ctx.restore();
             }
         }
@@ -950,14 +938,13 @@
                 keys[e.code] = true;
             }
             
-            // Reload with R key
             if (e.code === 'KeyR' && gameRunning && !player.reloading && player.ammo < player.maxAmmo) {
                 player.reloading = true;
                 setTimeout(() => {
                     player.ammo = player.maxAmmo;
                     updateAmmoUI();
                     player.reloading = false;
-                }, 1000); // 1 second reload time
+                }, 1000);
             }
         });
         
@@ -975,7 +962,7 @@
         });
         
         canvas.addEventListener('mousedown', (e) => {
-            if (e.button === 0) { // Left click
+            if (e.button === 0) {
                 mouse.clicked = true;
                 shoot();
             }
@@ -995,7 +982,6 @@
             mouse.x = touch.clientX - rect.left;
             mouse.y = touch.clientY - rect.top;
             mouse.clicked = true;
-            shoot();
         });
         
         canvas.addEventListener('touchmove', (e) => {
@@ -1022,11 +1008,9 @@
             player.ammo--;
             updateAmmoUI();
             
-            // Play shoot sound
             shootSound.currentTime = 0;
             shootSound.play().catch(e => console.log("Audio play failed:", e));
             
-            // Create bullet
             bullets.push({
                 x: player.x,
                 y: player.y,
@@ -1038,7 +1022,6 @@
                 img: document.getElementById('bullet-img')
             });
             
-            // Auto-reload when empty
             if (player.ammo <= 0) {
                 player.reloading = true;
                 setTimeout(() => {
@@ -1063,7 +1046,60 @@
         });
         
         // Initialize canvas size
-        resizeCanvas();
+        function resizeCanvas() {
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                const size = Math.min(window.innerWidth, window.innerHeight, 800);
+                canvas.width = size;
+                canvas.height = size;
+            } else {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+        }
+        
+        // Preload assets
+        function preloadAssets() {
+            const assets = [
+                document.getElementById('player-img'),
+                document.getElementById('zombie1-img'),
+                document.getElementById('zombie2-img'),
+                document.getElementById('zombie3-img'),
+                document.getElementById('bullet-img'),
+                document.getElementById('bg1-img'),
+                document.getElementById('bg2-img'),
+                document.getElementById('bg3-img'),
+                document.getElementById('bg4-img'),
+                document.getElementById('bg5-img')
+            ];
+            
+            assets.forEach(img => {
+                if (!img.complete) {
+                    img.onload = () => console.log('Image loaded:', img.id);
+                    img.onerror = () => console.log('Error loading image:', img.id);
+                }
+            });
+            
+            const sounds = [
+                shootSound, zombieHitSound, playerHitSound, 
+                levelCompleteSound, gameOverSound, backgroundMusic
+            ];
+            
+            sounds.forEach(sound => {
+                sound.load().catch(e => console.log('Error loading sound:', e));
+            });
+        }
+        
+        // Initialize game
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            preloadAssets();
+        });
+        
         window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
